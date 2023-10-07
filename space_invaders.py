@@ -1,4 +1,5 @@
 import pygame as pg
+import random
 
 pg.init()
 
@@ -26,14 +27,13 @@ player_img = pg.image.load('src/player.png')
 player_width, player_height = player_img.get_size()
 display.blit(player_img, (screen_width/2, screen_height - player_height))
 
-
 player_gap = 10
 player_velocity = 10
 player_dx = 0
 player_x = screen_width/2 - player_width/2
 player_y = screen_height - player_height - player_gap
 
-
+#пуля
 bullet_img = pg.image.load('src/bullet.png')
 bullet_width, bullet_height = bullet_img.get_size()
 bullet_dy = -5
@@ -41,11 +41,26 @@ bullet_x = player_x - player_width / 4   #дз - пуля вылетает из 
 bullet_y = player_y - bullet_height
 bullet_alive = False
 
+# противник
+enemy_img = pg.image.load('src/enemy.png')
+enemy_width, enemy_height = enemy_img.get_size()
+enemy_dx = 0
+enemy_dy = 1
+enemy_x = 0
+enemy_y = 0
+
+def enemy_create():
+    global enemy_y, enemy_x
+    enemy_x = random.randint(0, screen_width - enemy_width)
+    enemy_y = 0
+    print(f'CREATE: {enemy_x=}')
+
 
 # изменение модели
 def model_update():
     player_model()
     bullet_model()
+    enemy_model()
 
 def player_model():
     global player_x
@@ -61,6 +76,25 @@ def bullet_model():
     if bullet_y < 0:
         bullet_alive = False
 
+def enemy_model():
+    global enemy_y, enemy_x, bullet_alive
+
+    enemy_x += enemy_dx
+    enemy_y += enemy_dy
+    if enemy_y > screen_height:
+        enemy_create()
+
+    # пересечение с пулей
+    if bullet_alive:
+        re = pg.Rect(enemy_x, enemy_y, enemy_width, enemy_height)
+        rb = pg.Rect(bullet_x, bullet_y, bullet_width, bullet_height)
+        is_crossed = re.colliderect(rb)
+        # попал!
+        if is_crossed:
+            print('BANG!')
+            enemy_create()
+            bullet_alive = False
+
 def bullet_create():
     global bullet_y, bullet_x, bullet_alive
     bullet_alive = True
@@ -71,7 +105,7 @@ def bullet_create():
 def display_redraw():
     display.blit(bg_img, (0, 0))
     display.blit(player_img, (player_x, player_y))
-    pg.display.update()
+    display.blit(enemy_img, (enemy_x, enemy_y))
     if bullet_alive:
         display.blit(bullet_img, (bullet_x, bullet_y))
     pg.display.update()
@@ -104,6 +138,7 @@ def event_processing():
     return running
 
 
+enemy_create()
 running = True
 while running:
     model_update()
