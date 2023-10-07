@@ -32,8 +32,8 @@ display.blit(bg_img, (0, 0))
 player_img = pg.image.load('src/player.png')
 player_width, player_height = player_img.get_size()
 display.blit(player_img, (screen_width/2, screen_height - player_height))
-text_player_name = font.render('Alexandr', True, 'lightpink')
-wp, hp = text_player_name.get_size()
+# text_player_name = font.render('Alexandr', True, 'lightpink')
+# wp, hp = text_player_name.get_size()
 
 
 running = True
@@ -42,13 +42,13 @@ while running:
     for event in pg.event.get():
         if event.type == pg.QUIT or event.type == pg.KEYDOWN and event.key == pg.K_q:
             running = False
-        if event.type == pg.KEYDOWN and event.key == pg.K_s:
-            display.blit(text_player_name, (screen_width / 2 - wp / 2, screen_height / 4 - hp / 2))
-        if event.type == pg.KEYDOWN and event.key == pg.K_SPACE:
-            display.blit(bg_img, (0, 0))
-            # display.blit(text_img, (37, 37))
-            # display.blit(game_over_text, (screen_width / 2 - wgo / 2, screen_height / 2 - hgo / 2))
-            display.blit(player_img, (screen_width/2, screen_height - player_height))
+        # if event.type == pg.KEYDOWN and event.key == pg.K_s:
+        #     display.blit(text_player_name, (screen_width / 2 - wp / 2, screen_height / 4 - hp / 2))
+        # if event.type == pg.KEYDOWN and event.key == pg.K_SPACE:
+        #     display.blit(bg_img, (0, 0))
+        #     display.blit(text_img, (37, 37))
+        #     display.blit(game_over_text, (screen_width / 2 - wgo / 2, screen_height / 2 - hgo / 2))
+        #     display.blit(player_img, (screen_width/2, screen_height - player_height))
     clock.tick(FPS)
 
 pg.quit()
