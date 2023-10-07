@@ -35,9 +35,21 @@ display.blit(player_img, (screen_width/2, screen_height - player_height))
 # text_player_name = font.render('Alexandr', True, 'lightpink')
 # wp, hp = text_player_name.get_size()
 
+player_gap = 10
+player_velocity = 1
+player_x = screen_width/2 - player_width/2
+player_y = screen_height  - player_height - player_gap
+
 
 running = True
 while running:
+    # изменение модели
+    player_x += player_velocity
+
+    # redraw
+    display.blit(bg_img, (0, 0))
+    display.blit(player_img, (player_x, player_y))
+
     pg.display.update()
     for event in pg.event.get():
         if event.type == pg.QUIT or event.type == pg.KEYDOWN and event.key == pg.K_q:
