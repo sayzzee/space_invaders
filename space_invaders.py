@@ -37,7 +37,7 @@ player_y = screen_height - player_height - player_gap
 bullet_img = pg.image.load('src/bullet.png')
 bullet_width, bullet_height = bullet_img.get_size()
 bullet_dy = -5
-bullet_x = player_x    #дз - пуля вылетает из середины
+bullet_x = player_x - player_width / 4   #дз - пуля вылетает из середины
 bullet_y = player_y - bullet_height
 bullet_alive = False
 
