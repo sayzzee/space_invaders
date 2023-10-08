@@ -21,7 +21,7 @@ pg.display.set_icon(icon_img)
 pg.display.set_caption('Космическая война')
 
 sys_font = pg.font.SysFont('arial', 32)
-font = pg.font.Font('src/04B_19.TTF', 36)
+font = pg.font.Font('src/04B_19.TTF', 40)
 font_big = pg.font.Font('src/04B_19.TTF', 72)
 
 display.blit(bg_img, (0, 0))
@@ -59,6 +59,9 @@ enemy_y = 0
 #счет
 score = 0
 game_over = False
+paused = False
+pause_img = pg.image.load('src/paused.png')
+pause_w, pause_h = pause_img.get_size()
 
 def enemy_create():
     global enemy_y, enemy_x, score
@@ -67,12 +70,6 @@ def enemy_create():
     print(f'CREATE: {enemy_x=} {enemy_y=} ')
     score += 1
     print(f'Счет равен {score - 1}')
-
-# изменение модели
-def model_update():
-    player_model()
-    bullet_model()
-    enemy_model()
 
 def player_model():
     if player_alive == True:
@@ -117,6 +114,13 @@ def enemy_model():
             print('Game over')
             player_alive = False
 
+# изменение модели
+def model_update():
+    if paused == False:
+        player_model()
+        bullet_model()
+        enemy_model()
+
 def game_over_menu():
     global game_over
     if not player_alive:
@@ -129,7 +133,11 @@ def game_over_menu():
 
 def score_write():
     score_text = font.render("Score: " + str(score - 1), True, 'white')
-    display.blit(score_text, (600, 10))
+    wgs, hgs = score_text.get_size()
+    if player_alive:
+        display.blit(score_text, (600, 10))
+    elif not player_alive:
+        display.blit(score_text, (screen_width / 2 - wgs / 2, (screen_height / 2) + hgs * 1.5))
 
 def bullet_create():
     global bullet_y, bullet_x, bullet_alive
@@ -155,13 +163,18 @@ def display_redraw():
         game_over_menu()
         score_write()
         pg.display.update()
+    if paused == True:
+        display.blit(pause_img, (screen_width / 2 - pause_w / 2, screen_height / 2 - pause_h / 2))
+        pg.display.update()
 
 def event_processing():
-    global player_dx
+    global player_dx, paused
     running = True
     for event in pg.event.get():
         if event.type == pg.QUIT or event.type == pg.KEYDOWN and event.key == pg.K_q:
             running = False
+        if event.type == pg.KEYDOWN and event.key == pg.K_p:
+            paused = not paused
 
         # движение игрока
         if event.type == pg.KEYDOWN:
