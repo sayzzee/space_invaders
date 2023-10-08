@@ -167,13 +167,25 @@ def display_redraw():
         pg.display.update()
 
 def event_processing():
-    global player_dx, paused
+    global player_dx, paused, game_over, player_alive, score
     running = True
     for event in pg.event.get():
         if event.type == pg.QUIT or event.type == pg.KEYDOWN and event.key == pg.K_q:
             running = False
         if event.type == pg.KEYDOWN and event.key == pg.K_p:
             paused = not paused
+        if event.type == pg.KEYDOWN and event.key == pg.K_r:
+            game_over = False
+            player_alive = True
+            score = 0
+            pg.mixer.music.play(-1)
+            enemy_create()
+            running = True
+            while running:
+                model_update()
+                display_redraw()
+                running = event_processing()
+
 
         # движение игрока
         if event.type == pg.KEYDOWN:
