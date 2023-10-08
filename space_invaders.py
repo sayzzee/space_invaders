@@ -17,7 +17,7 @@ pg.display.set_icon(icon_img)
 pg.display.set_caption('Космическая война')
 
 sys_font = pg.font.SysFont('arial', 32)
-font = pg.font.Font('src/04B_19.TTF', 48)
+font = pg.font.Font('src/04B_19.TTF', 36)
 
 display.blit(bg_img, (0, 0))
 
@@ -26,17 +26,17 @@ display.blit(bg_img, (0, 0))
 player_img = pg.image.load('src/player.png')
 player_width, player_height = player_img.get_size()
 display.blit(player_img, (screen_width/2, screen_height - player_height))
-
 player_gap = 10
 player_velocity = 10
 player_dx = 0
 player_x = screen_width/2 - player_width/2
 player_y = screen_height - player_height - player_gap
+player_alive = True
 
 #пуля
 bullet_img = pg.image.load('src/bullet.png')
 bullet_width, bullet_height = bullet_img.get_size()
-bullet_dy = -5
+bullet_dy = -7
 bullet_x = player_x - player_width / 4   #дз - пуля вылетает из середины
 bullet_y = player_y - bullet_height
 bullet_alive = False
@@ -45,15 +45,22 @@ bullet_alive = False
 enemy_img = pg.image.load('src/enemy.png')
 enemy_width, enemy_height = enemy_img.get_size()
 enemy_dx = 0
-enemy_dy = 1
+enemy_dy = 2
 enemy_x = 0
 enemy_y = 0
 
+#счет
+score = 0
+
+
 def enemy_create():
-    global enemy_y, enemy_x
+    global enemy_y, enemy_x, score
     enemy_x = random.randint(0, screen_width - enemy_width)
-    enemy_y = 0
-    print(f'CREATE: {enemy_x=}')
+    enemy_y = random.randint(0, 300)
+    print(f'CREATE: {enemy_x=} {enemy_y=} ')
+    score += 1
+    print(f'Счет равен {score - 1}')
+
 
 
 # изменение модели
@@ -61,6 +68,7 @@ def model_update():
     player_model()
     bullet_model()
     enemy_model()
+    # score_write()
 
 def player_model():
     global player_x
@@ -77,8 +85,7 @@ def bullet_model():
         bullet_alive = False
 
 def enemy_model():
-    global enemy_y, enemy_x, bullet_alive
-
+    global enemy_y, enemy_x, bullet_alive, player_alive
     enemy_x += enemy_dx
     enemy_y += enemy_dy
     if enemy_y > screen_height:
@@ -95,6 +102,21 @@ def enemy_model():
             enemy_create()
             bullet_alive = False
 
+    #пересечение с игроком
+    if player_alive:
+        per = pg.Rect(enemy_x, enemy_y, enemy_width, enemy_height)
+        rep = pg.Rect(player_x, player_y, player_width, player_height)
+        pereseklis = per.colliderect(rep)
+        if pereseklis:
+            print('Game over')
+            player_alive = False
+
+def score_write():
+     score_text = font.render("Score: " + str(score - 1), True, 'white')
+     display.blit(score_text, (600, 10))
+
+
+
 def bullet_create():
     global bullet_y, bullet_x, bullet_alive
     bullet_alive = True
@@ -108,6 +130,7 @@ def display_redraw():
     display.blit(enemy_img, (enemy_x, enemy_y))
     if bullet_alive:
         display.blit(bullet_img, (bullet_x, bullet_y))
+    score_write()
     pg.display.update()
 
 def event_processing():
