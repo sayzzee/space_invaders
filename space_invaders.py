@@ -8,6 +8,10 @@ screen_width, screen_height = 800, 600
 FPS = 60
 clock = pg.time.Clock()
 
+pg.mixer.music.load("src/background.wav")
+pg.mixer.music.set_volume(0.1)
+pg.mixer.music.play(-1)
+
 #изображения
 bg_img = pg.image.load(r'src/background.png')
 icon_img = pg.image.load(r'src/ufo.png')
@@ -18,6 +22,7 @@ pg.display.set_caption('Космическая война')
 
 sys_font = pg.font.SysFont('arial', 32)
 font = pg.font.Font('src/04B_19.TTF', 36)
+font_big = pg.font.Font('src/04B_19.TTF', 72)
 
 display.blit(bg_img, (0, 0))
 
@@ -40,6 +45,8 @@ bullet_dy = -7
 bullet_x = player_x - player_width / 4   #дз - пуля вылетает из середины
 bullet_y = player_y - bullet_height
 bullet_alive = False
+shot = pg.mixer.Sound('src/laser.wav')
+shot.set_volume(0.15)
 
 # противник
 enemy_img = pg.image.load('src/enemy.png')
@@ -51,7 +58,7 @@ enemy_y = 0
 
 #счет
 score = 0
-
+game_over = False
 
 def enemy_create():
     global enemy_y, enemy_x, score
@@ -61,22 +68,20 @@ def enemy_create():
     score += 1
     print(f'Счет равен {score - 1}')
 
-
-
 # изменение модели
 def model_update():
     player_model()
     bullet_model()
     enemy_model()
-    # score_write()
 
 def player_model():
-    global player_x
-    player_x += player_dx
-    if player_x < 0:
-        player_x = 0
-    elif player_x > screen_width - player_width:
-        player_x = screen_width - player_width
+    if player_alive == True:
+        global player_x
+        player_x += player_dx
+        if player_x < 0:
+            player_x = 0
+        elif player_x > screen_width - player_width:
+            player_x = screen_width - player_width
 
 def bullet_model():
     global bullet_y, bullet_alive
@@ -86,10 +91,11 @@ def bullet_model():
 
 def enemy_model():
     global enemy_y, enemy_x, bullet_alive, player_alive
-    enemy_x += enemy_dx
-    enemy_y += enemy_dy
-    if enemy_y > screen_height:
-        enemy_create()
+    if player_alive:
+        enemy_x += enemy_dx
+        enemy_y += enemy_dy
+        if enemy_y > screen_height:
+            enemy_create()
 
     # пересечение с пулей
     if bullet_alive:
@@ -111,27 +117,44 @@ def enemy_model():
             print('Game over')
             player_alive = False
 
+def game_over_menu():
+    global game_over
+    if not player_alive:
+        game_over_text = font_big.render('Game over', True, 'red')
+        wgo, hgo = game_over_text.get_size()
+        display.blit(game_over_text, (screen_width/2 - wgo/2, screen_height/2 - hgo/2))
+        pg.mixer.music.pause()
+        game_over = True
+
+
 def score_write():
-     score_text = font.render("Score: " + str(score - 1), True, 'white')
-     display.blit(score_text, (600, 10))
-
-
+    score_text = font.render("Score: " + str(score - 1), True, 'white')
+    display.blit(score_text, (600, 10))
 
 def bullet_create():
     global bullet_y, bullet_x, bullet_alive
-    bullet_alive = True
-    bullet_x = player_x + player_width / 4  #дз - пуля вылетает из середины
-    bullet_y = player_y - bullet_height
+    if player_alive:
+        bullet_alive = True
+        bullet_x = player_x + player_width / 4  #дз - пуля вылетает из середины
+        bullet_y = player_y - bullet_height
+        shot.play()
 
     # redraw
 def display_redraw():
-    display.blit(bg_img, (0, 0))
-    display.blit(player_img, (player_x, player_y))
-    display.blit(enemy_img, (enemy_x, enemy_y))
-    if bullet_alive:
-        display.blit(bullet_img, (bullet_x, bullet_y))
-    score_write()
-    pg.display.update()
+    if player_alive == True:
+        display.blit(bg_img, (0, 0))
+        display.blit(player_img, (player_x, player_y))
+        display.blit(enemy_img, (enemy_x, enemy_y))
+        if bullet_alive:
+            display.blit(bullet_img, (bullet_x, bullet_y))
+        score_write()
+        game_over_menu()
+        pg.display.update()
+    else:
+        display.blit(bg_img, (0, 0))
+        game_over_menu()
+        score_write()
+        pg.display.update()
 
 def event_processing():
     global player_dx
@@ -167,5 +190,7 @@ while running:
     model_update()
     display_redraw()
     running = event_processing()
+
+
 
 pg.quit()
