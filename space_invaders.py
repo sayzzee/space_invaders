@@ -64,12 +64,10 @@ pause_img = pg.image.load('src/paused.png')
 pause_w, pause_h = pause_img.get_size()
 
 def enemy_create():
-    global enemy_y, enemy_x, score
+    global enemy_y, enemy_x
     enemy_x = random.randint(0, screen_width - enemy_width)
     enemy_y = random.randint(0, 300)
     print(f'CREATE: {enemy_x=} {enemy_y=} ')
-    score += 1
-    print(f'Счет равен {score - 1}')
 
 def player_model():
     if player_alive == True:
@@ -87,7 +85,7 @@ def bullet_model():
         bullet_alive = False
 
 def enemy_model():
-    global enemy_y, enemy_x, bullet_alive, player_alive
+    global enemy_y, enemy_x, bullet_alive, player_alive, score
     if player_alive:
         enemy_x += enemy_dx
         enemy_y += enemy_dy
@@ -102,6 +100,7 @@ def enemy_model():
         # попал!
         if is_crossed:
             print('BANG!')
+            score += 1
             enemy_create()
             bullet_alive = False
 
@@ -132,7 +131,7 @@ def game_over_menu():
 
 
 def score_write():
-    score_text = font.render("Score: " + str(score - 1), True, 'white')
+    score_text = font.render("Score: " + str(score), True, 'white')
     wgs, hgs = score_text.get_size()
     if player_alive:
         display.blit(score_text, (600, 10))
